@@ -76,8 +76,8 @@ def get_books_api(request):
             parsed_genres = [g.strip() for g in book.genres_csv.split(',') if g.strip()] if book.genres_csv else []
             
             # 👑 Absolute paths for document and image uploads over your Wi-Fi network
-            file_url = request.build_absolute_uri(book.file.url) if book.file else None
-            image_url = request.build_absolute_uri(book.cover_image.url) if book.cover_image else None
+            file_url = book.file.url if book.file else None
+            image_url = book.cover_image.url if book.cover_image else None
             
             books_list.append({
                 'id': book.id,
