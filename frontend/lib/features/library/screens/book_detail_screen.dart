@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:books_read/features/home/screens/home_screen.dart';
-
+import '../../../api_config.dart';
 // 👑 IMPORT: Add this so this screen knows how to find your reading view file!
 import 'book_reader_screen.dart';
 
@@ -56,7 +56,9 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
         return;
       }
 
-      final url = Uri.parse('http://192.168.100.166:8000/api/profile/update-book/');
+      final url = Uri.parse(
+          '$apiBaseUrl/api/profile/update-book/'
+      );
       final response = await isolatedClient.post(
         url,
         headers: {

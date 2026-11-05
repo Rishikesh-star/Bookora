@@ -13,26 +13,28 @@ dependencies:
   shared_preferences: ^2.5.5
   flutter_pdfview: ^1.4.4
   path_provider: ^2.1.5
-  # Added this back
+  http: ^1.6.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
-  http: ^1.2.2
+  flutter_native_splash: ^2.4.4
 
 flutter:
   uses-material-design: true
   assets:
     - assets/
-#    - assets/background.png
-#    - assets/loginbg.png
-#    - assets/google.png
-#    - assets/bookora_logo.png
+
+
 
 flutter_native_splash:
   color: "#050B18"
-  image: assets/bookora_logo.png # Fixed path
+  image: assets/img.png
+  fullscreen: true
+
   android_12:
-    image: assets/bookora_logo.png
     color: "#050B18"
+    image: assets/img.png
+
+    icon_background_color: "#050B18"

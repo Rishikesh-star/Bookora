@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:books_read/core/constants.dart';
 import 'package:books_read/features/library/screens/book_detail_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import '../../../api_config.dart';
 class Book {
   final int id;
   final String title;
@@ -96,8 +96,9 @@ class _HomeScreenState extends State<HomeScreen> {
     });
 
     try {
-      final booksUri = Uri.parse('http://192.168.100.166:8000/api/books/');
-      final booksResponse = await http.get(booksUri, headers: {'Content-Type': 'application/json'});
+      final booksUri = Uri.parse(
+          '$apiBaseUrl/api/books/'
+      );      final booksResponse = await http.get(booksUri, headers: {'Content-Type': 'application/json'});
 
       final prefs = await SharedPreferences.getInstance();
       final String? token = prefs.getString('auth_token') ?? prefs.getString('token');
@@ -106,7 +107,9 @@ class _HomeScreenState extends State<HomeScreen> {
       List<dynamic> library = [];
 
       if (token != null) {
-        final profileUri = Uri.parse('http://192.168.100.166:8000/api/auth/profile/');
+        final profileUri = Uri.parse(
+          '$apiBaseUrl/api/auth/profile/',
+        );
         final profileResponse = await http.get(profileUri, headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Token $token',

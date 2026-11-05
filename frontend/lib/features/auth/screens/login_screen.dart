@@ -6,7 +6,7 @@ import '../../../core/constants.dart';
 import '../../../core/theme.dart';
 import '../../home/main_wrapper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import '../../../api_config.dart';
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -34,8 +34,9 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() => _isLoading = true);
 
     // 2. Network Endpoint Execution
-    final uri = Uri.parse('http://192.168.100.166:8000/api/auth/login/');
-    
+    final uri = Uri.parse(
+        '$apiBaseUrl/api/auth/login/'
+    );
     try {
       final response = await http.post(
         uri,

@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-
+import '../../../api_config.dart';
 import 'book_list_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -49,8 +49,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
         });
         return;
       }
-
-      final url = Uri.parse('http://192.168.100.166:8000/api/auth/profile/');
+      final url = Uri.parse(
+          '$apiBaseUrl/api/auth/profile/'
+      );
 
       final response = await isolatedClient.get(
         url,

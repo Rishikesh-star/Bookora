@@ -5,7 +5,7 @@ import 'core/theme.dart';
 import 'features/auth/screens/get_started.dart';
 import 'features/auth/screens/login_screen.dart';
 import 'features/home/main_wrapper.dart';
-
+import 'api_config.dart';
 void main() {
   WidgetsFlutterBinding.ensureInitialized(); // 🚀 Required to initialize native storage plugins early
   runApp(const BookoraApp());
@@ -22,7 +22,7 @@ class BookoraApp extends StatelessWidget {
       theme: AppTheme.darkTheme,
       initialRoute: '/',
       routes: {
-        '/': (context) => const BackendConnectionWrapper(),
+        '/': (context) => const GetStartedPage(),
         '/get-started': (context) => const GetStartedPage(),
         '/login': (context) => const LoginScreen(),
         '/home': (context) => MainWrapper(),
@@ -73,7 +73,9 @@ class _BackendConnectionWrapperState extends State<BackendConnectionWrapper> {
 
   Future<void> _checkBackendConnection() async {
     // Ensure this matches your active computer network IP!
-    final url = Uri.parse('http://192.168.100.166:8000/api/books/');
+    final url = Uri.parse(
+        '$apiBaseUrl/api/books/'
+    );
 
     try {
       final response = await http.get(url).timeout(const Duration(seconds: 4));

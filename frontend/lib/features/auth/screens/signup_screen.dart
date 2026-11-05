@@ -5,7 +5,7 @@ import 'package:books_read/features/auth/screens/login_screen.dart';
 import '../../../core/constants.dart';
 import '../../../core/theme.dart';
 import '../../home/main_wrapper.dart';
-
+import '../../../api_config.dart';
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
 
@@ -46,8 +46,9 @@ class _SignupScreenState extends State<SignupScreen> {
     setState(() => _isLoading = true);
 
     // 2. API Request Implementation
-    final uri = Uri.parse('http://192.168.100.166:8000/api/auth/signup/');
-    
+    final uri = Uri.parse(
+        '$apiBaseUrl/api/auth/signup/'
+    );
     try {
       final response = await http.post(
         uri,
