@@ -14,6 +14,7 @@ dependencies:
   flutter_pdfview: ^1.4.4
   path_provider: ^2.1.5
   http: ^1.6.0
+  pdfx: ^2.11.0
 
 dev_dependencies:
   flutter_test:

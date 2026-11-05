@@ -1,8 +1,9 @@
-import 'dart:io';
+
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
-import 'package:flutter_pdfview/flutter_pdfview.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:http/http.dart' as http;
+import 'package:pdfx/pdfx.dart';
 
 class BookReaderScreen extends StatefulWidget {
   final String bookTitle;
@@ -19,128 +20,211 @@ class BookReaderScreen extends StatefulWidget {
 }
 
 class _BookReaderScreenState extends State<BookReaderScreen> {
-  String? _localFilePath;
+  PdfController? _pdfController;
+
   bool _isLoading = true;
   String? _errorMessage;
 
   int _totalPages = 0;
-  int _currentPage = 0;
-  bool _pdfReady = false;
-  PDFViewController? _pdfViewController;
+  int _currentPage = 1;
 
   @override
   void initState() {
     super.initState();
-    _downloadAndCachePdf();
+    _loadPdf();
   }
 
-  // Securely streams the file from your Django server into temporary app storage cache
-  Future<void> _downloadAndCachePdf() async {
+  // Download PDF bytes from Cloudinary.
+  Future<Uint8List> _loadPdfBytes() async {
+    final response = await http.get(
+      Uri.parse(widget.fileUrl),
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception(
+        'Failed to download PDF. HTTP ${response.statusCode}',
+      );
+    }
+
+    if (response.bodyBytes.isEmpty) {
+      throw Exception('The downloaded PDF is empty.');
+    }
+
+    return response.bodyBytes;
+  }
+
+  // Load the downloaded PDF into the viewer.
+  Future<void> _loadPdf() async {
     try {
-      final response = await http.get(Uri.parse(widget.fileUrl));
-      if (response.statusCode == 200) {
-        final bytes = response.bodyBytes;
-        final dir = await getTemporaryDirectory();
+      final bytes = await _loadPdfBytes();
 
-        // Generates a localized safe path instance
-        final file = File('${dir.path}/book_${DateTime.now().millisecondsSinceEpoch}.pdf');
-        await file.writeAsBytes(bytes, flush: true);
+      final document = await PdfDocument.openData(bytes);
 
-        if (!mounted) return;
-        setState(() {
-          _localFilePath = file.path;
-          _isLoading = false;
-        });
-      } else {
-        setState(() {
-          _errorMessage = "Server refused file stream (${response.statusCode})";
-          _isLoading = false;
-        });
+      final controller = PdfController(
+        document: Future.value(document),
+      );
+
+      if (!mounted) {
+        controller.dispose();
+        return;
       }
-    } catch (e) {
-      if (!mounted) return;
+
       setState(() {
-        _errorMessage = "Failed to sync document viewer system.";
+        _pdfController = controller;
         _isLoading = false;
       });
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        _errorMessage = 'Unable to load PDF: $e';
+        _isLoading = false;
+      });
+
+      debugPrint('PDF loading error: $e');
     }
+  }
+
+  @override
+  void dispose() {
+    _pdfController?.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF12141C),
+
       appBar: AppBar(
         backgroundColor: const Color(0xFF1C1F2E),
         elevation: 0,
-        title: Text(widget.bookTitle, style: const TextStyle(color: Colors.white, fontSize: 16)),
-        iconTheme: const IconThemeData(color: Colors.white),
+
+        title: Text(
+          widget.bookTitle,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 16,
+          ),
+        ),
+
+        iconTheme: const IconThemeData(
+          color: Colors.white,
+        ),
+
         actions: [
-          if (_pdfReady)
+          if (!_isLoading && _errorMessage == null)
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16,
+              ),
               child: Center(
                 child: Text(
-                  "${_currentPage + 1} / $_totalPages",
-                  style: const TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
+                  '$_currentPage / $_totalPages',
+                  style: const TextStyle(
+                    color: Colors.blue,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
-            )
+            ),
         ],
       ),
+
       body: _buildReaderContent(),
     );
   }
 
   Widget _buildReaderContent() {
+    // Loading indicator.
     if (_isLoading) {
       return const Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            CircularProgressIndicator(color: Colors.blue),
+            CircularProgressIndicator(
+              color: Colors.blue,
+            ),
             SizedBox(height: 16),
-            Text("Downloading pages safely...", style: TextStyle(color: Colors.grey)),
+            Text(
+              'Loading your book...',
+              style: TextStyle(
+                color: Colors.grey,
+              ),
+            ),
           ],
         ),
       );
     }
 
+    // Error message.
     if (_errorMessage != null) {
       return Center(
-        child: Text(_errorMessage!, style: const TextStyle(color: Colors.redAccent)),
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(
+                Icons.error_outline,
+                color: Colors.redAccent,
+                size: 48,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                _errorMessage!,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: Colors.redAccent,
+                  fontSize: 14,
+                ),
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton.icon(
+                onPressed: () {
+                  setState(() {
+                    _isLoading = true;
+                    _errorMessage = null;
+                  });
+
+                  _loadPdf();
+                },
+                icon: const Icon(Icons.refresh),
+                label: const Text('Try Again'),
+              ),
+            ],
+          ),
+        ),
       );
     }
 
-    return PDFView(
-      filePath: _localFilePath,
-      enableSwipe: true,
-      swipeHorizontal: true, // Set to false if you want vertical scrolling instead!
-      autoSpacing: true,
-      pageFling: true,
-      pageSnap: true,
-      defaultPage: _currentPage,
-      fitPolicy: FitPolicy.BOTH,
-      onRender: (pages) {
+    // PDF viewer.
+    if (_pdfController == null) {
+      return const Center(
+        child: Text(
+          'PDF viewer is unavailable.',
+          style: TextStyle(color: Colors.white),
+        ),
+      );
+    }
+
+    return PdfView(
+      controller: _pdfController!,
+      scrollDirection: Axis.horizontal,
+
+      onDocumentLoaded: (document) {
+        if (!mounted) return;
+
         setState(() {
-          _totalPages = pages ?? 0;
-          _pdfReady = true;
+          _totalPages = document.pagesCount;
         });
       },
-      onError: (error) {
+
+      onPageChanged: (page) {
+        if (!mounted) return;
+
         setState(() {
-          _errorMessage = error.toString();
-        });
-      },
-      onPageError: (page, error) {
-        debugPrint('Page $page error: ${error.toString()}');
-      },
-      onViewCreated: (PDFViewController pdfViewController) {
-        _pdfViewController = pdfViewController;
-      },
-      onPageChanged: (int? page, int? total) {
-        setState(() {
-          _currentPage = page ?? 0;
+          _currentPage = page;
         });
       },
     );
