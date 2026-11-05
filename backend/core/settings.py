@@ -2,6 +2,7 @@
 import os
 import pymysql
 import dj_database_url
+import cloudinary
 
 from pathlib import Path
 
@@ -41,6 +42,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'corsheaders',
     'core',
+
     'cloudinary',
     'cloudinary_storage',
 ]
@@ -134,35 +136,20 @@ USE_I18N = True
 USE_TZ = True
 
 
-# Static files
+# Static and media files
 STATIC_URL = '/static/'
 
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-
-# File storage configuration
-STORAGES = {
-    'default': {
-        'BACKEND': 'django.core.files.storage.FileSystemStorage',
-    },
-    'staticfiles': {
-        'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage',
-    },
-}
-
-
-# Media files
 MEDIA_URL = '/media/'
 
-MEDIA_ROOT = BASE_DIR / 'media'
 
 # Cloudinary configuration
-import cloudinary
+# Reads CLOUDINARY_URL from the environment
+cloudinary.config(secure=True)
 
-cloudinary.config(
-    secure=True
-)
 
+# File storage configuration
 STORAGES = {
     'default': {
         'BACKEND': 'cloudinary_storage.storage.MediaCloudinaryStorage',
@@ -171,6 +158,7 @@ STORAGES = {
         'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage',
     },
 }
+
 
 # Django REST Framework
 REST_FRAMEWORK = {
@@ -196,3 +184,20 @@ if not DEBUG:
 
 # Default primary key
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'django.request': {
+            'handlers': ['console'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+    },
+}
