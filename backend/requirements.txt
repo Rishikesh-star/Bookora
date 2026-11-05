@@ -1,0 +1,13 @@
+asgiref==3.11.1
+Django==6.0.6
+django-cors-headers==4.9.0
+django-stubs==6.1.2
+django-stubs-ext==6.1.2
+djangorestframework==3.17.1
+djangorestframework-stubs==3.18.2
+mysqlclient==2.3.0
+pillow==12.3.0
+PyMySQL==1.2.0
+sqlparse==0.5.5
+types-PyYAML==6.0.12.20261103
+typing_extensions==4.16.0

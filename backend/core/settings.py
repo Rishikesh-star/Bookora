@@ -83,8 +83,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'my_flutter_db',       # The database we just created
-        'USER': 'root',                # Your MariaDB username
-        'PASSWORD': 'Hello123',   # Swap this with your actual root password!
+        'USER': 'Rishikesh',                # Your MariaDB username
+        'PASSWORD': 'Password123!',   # Swap this with your actual root password!
         'HOST': '127.0.0.1',           # Localhost
         'PORT': '3306',                # Default MariaDB port
     }
