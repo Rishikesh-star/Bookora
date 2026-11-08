@@ -170,8 +170,7 @@ REST_FRAMEWORK = {
 
 # CORS configuration
 CORS_ALLOWED_ORIGINS = [
-    'https://bookora-frontend-75uysr1l3-star-3728.vercel.app',
-    'https://bookora-frontend-sandy.vercel.app',
+    "https://bookora-frontend-kofkprgmq-star-3728.vercel.app",
 ]
 
 
