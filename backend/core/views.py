@@ -78,7 +78,7 @@ def get_books_api(request):
             # 👑 Absolute paths for document and image uploads over your Wi-Fi network
             file_url = book.file.url if book.file else None
             image_url = book.cover_image.url if book.cover_image else None
-            
+
             books_list.append({
                 'id': book.id,
                 'title': book.title,
